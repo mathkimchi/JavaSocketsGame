@@ -1,35 +1,22 @@
 package src.main.shooter.gui;
 
-import java.awt.event.*;
-import javax.swing.*;
+import java.awt.BorderLayout;
+
 import javax.swing.JFrame;
 
-import src.main.shooter.net.Client;
+import src.main.shooter.game.ClientGame;
 
 public class MainFrame extends JFrame {
-    private Client client;
-
-    public MainFrame() {
+    public MainFrame(ClientGame game) {
         super("Test");
 
-        client = new Client(null, "localhost");
-        client.start();
+        GamePanel gamePanel = new GamePanel(game);
 
-        JButton pingButton = new JButton("Ping server");
-        pingButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                client.sendData("ping".getBytes());
-            }
-        });
+        add(gamePanel, BorderLayout.CENTER);
 
-        add(pingButton);
+        addKeyListener(new ClientInputHandler(game));
 
         pack();
         setVisible(true);
-    }
-
-    public static void main(String[] args) {
-        new MainFrame();
     }
 }

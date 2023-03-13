@@ -18,7 +18,7 @@ public class Server {
 
     public Server(ServerSocket serverSocket) {
         this.serverSocket = serverSocket;
-        startServerLoop();
+        startAcceptClientLoop();
     }
 
     // sender client to server to every client
@@ -37,7 +37,7 @@ public class Server {
         System.out.println("Server message has been broadcasted.");
     }
 
-    private void startServerLoop() {
+    private void startAcceptClientLoop() {
         System.out.println("Starting server.");
         clientHandlers = new ArrayList<ClientHandler>();
         try {

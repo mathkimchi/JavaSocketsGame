@@ -1,51 +1,96 @@
 package src.main.shooter.net;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.TreeMap;
 
-import src.main.shooter.game.Game;
+import src.main.shooter.game.ClientGame;
+import src.main.shooter.game.Entity;
+import src.main.shooter.gui.MainFrame;
 
-public class Client extends Thread {
-    private InetAddress ipAddress;
-    private DatagramSocket socket;
-    private Game game;
+public class Client implements Runnable {
+    private Socket socket;
+    private ObjectInputStream inputStream;
+    private ObjectOutputStream outputStream;
+    private ClientGame game;
+    private MainFrame mainFrame;
 
-    public Client(Game game, String ipAddress) {
-        this.game = game;
+    public Client(String ipAddress, int port) {
         try {
-            this.socket = new DatagramSocket();
-            this.ipAddress = InetAddress.getByName(ipAddress);
-        } catch (UnknownHostException e) {
+            socket = new Socket(ipAddress, port);
+            inputStream = new ObjectInputStream(socket.getInputStream());
+            outputStream = new ObjectOutputStream(socket.getOutputStream());
+        } catch (IOException e) {
             e.printStackTrace();
-        } catch (SocketException e) {
+        }
+
+        initialServerCommunication();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void initialServerCommunication() {
+        try {
+            int clientId = inputStream.readInt();
+            game = new ClientGame(clientId);
+
+            game.processEntityList(((TreeMap<Integer, Entity>) inputStream.readObject()));
+
+            mainFrame = new MainFrame(game);
+
+            System.out.println("Finished initial server communication.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 
     @Override
     public void run() {
+        new Thread(() -> startReadAndWriteLoop()).start();
+        new Thread(() -> startGameloop()).start();
+    }
+
+    @SuppressWarnings("unchecked") // if type is bad, then it should throw an error anyways
+    private void startReadAndWriteLoop() {
         while (true) {
-            byte[] data = new byte[1024];
-            DatagramPacket packet = new DatagramPacket(data, data.length);
             try {
-                socket.receive(packet);
+                // read
+                // System.out.println("Waiting to recieve.");
+                game.processEntityList(((TreeMap<Integer, Entity>) inputStream.readObject()));
+
+                // write
+                outputStream.writeObject(new Packet(game.getActionSet()));
+                if (game.getActionSet().getLongActions().size() > 0) {
+                    System.out.println("Sent: " + game.getActionSet().getLongActions().size());
+                }
+                game.getActionSet().getInstantActions().clear();
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
             }
-            System.out.println("SERVER: " + new String(packet.getData()));
         }
     }
 
-    public void sendData(byte[] data) {
-        DatagramPacket packet = new DatagramPacket(data, data.length, ipAddress, Server.portNumber);
+    private void startGameloop() {
+        while (true) {
+            game.tick();
+            mainFrame.repaint();
+        }
+    }
+
+    public void send(String s) {
         try {
-            socket.send(packet);
+            outputStream.writeObject(s);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void main(String[] args) {
+        new Client("localhost", Server.portNumber).run();
     }
 }

@@ -15,7 +15,6 @@ public class Client {
 
     private Socket socket;
     private BufferedReader bufferedReader;
-
     private BufferedWriter bufferedWriter;
 
     public Client(int port) {
