@@ -10,12 +10,12 @@ import src.main.shooter.game.Entity;
 
 public class ClientHandler implements Runnable {
     private final int entityId;
-    private Server server;
-    private Socket socket;
+    private final Server server;
+    private final Socket socket;
     private ObjectOutputStream outputStream;
     private ObjectInputStream inputStream;
 
-    public ClientHandler(Server server, Socket socket, int id) {
+    public ClientHandler(final Server server, final Socket socket, final int id) {
         this.server = server;
         this.socket = socket;
         this.entityId = id;
@@ -23,7 +23,7 @@ public class ClientHandler implements Runnable {
         try {
             this.outputStream = new ObjectOutputStream(socket.getOutputStream());
             this.inputStream = new ObjectInputStream(socket.getInputStream());
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
 
@@ -34,7 +34,7 @@ public class ClientHandler implements Runnable {
         try {
             outputStream.writeInt(entityId);
             server.sendUpdates(this);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
     }
@@ -48,22 +48,22 @@ public class ClientHandler implements Runnable {
     private void startRecieveMessageLoop() {
         while (socket.isConnected()) {
             try {
-                Packet packet = (Packet) inputStream.readObject();
+                final Packet packet = (Packet) inputStream.readObject();
                 server.processPacket(entityId, packet);
-                // System.out.println(packet.actionSet.getLongActions().size());
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
-            } catch (ClassNotFoundException e) {
+            } catch (final ClassNotFoundException e) {
                 e.printStackTrace();
             }
         }
     }
 
     // server to client
-    public void sendUpdate(TreeMap<Integer, Entity> update) {
+    public void sendUpdate(final TreeMap<Integer, Entity> update) {
         try {
             outputStream.writeObject(update);
-        } catch (IOException e) {
+            outputStream.reset();
+        } catch (final IOException e) {
             e.printStackTrace();
         }
     }

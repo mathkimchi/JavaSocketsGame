@@ -11,10 +11,11 @@ import src.main.shooter.game.ClientGame;
 import src.main.shooter.game.Entity;
 
 public class GamePanel extends JPanel {
-    private final double[][] gameViewRanges = new double[][] { { -100, 100 }, { -100, 100 } }; // {xRange, yRange}
-    private ClientGame game;
+    private static final long serialVersionUID = -355339008103996038L;
+    private final double[][] gameViewRanges = new double[][] { { 2, -2 }, { 2, -2 } }; // {xRange, yRange}
+    private final ClientGame game;
 
-    public GamePanel(ClientGame game) {
+    public GamePanel(final ClientGame game) {
         this.game = game;
     }
 
@@ -29,49 +30,60 @@ public class GamePanel extends JPanel {
     }
 
     @Override
-    public void paint(Graphics g) {
-        Graphics2D graphics2d = (Graphics2D) g;
+    public void paint(final Graphics g) {
+        System.out.println("Starting to paint.");
+        final Graphics2D graphics2d = (Graphics2D) g;
         graphics2d.setColor(Color.BLACK);
-        for (Entity entity : game.getEntities().values()) {
-            graphics2d.fillRect(remapXCoords(entity.getX()), remapYCoords(entity.getY()),
-                    rescaleWidth(entity.getWidth()), rescaleHeight(entity.getHeight()));
+        for (final Entity entity : game.getEntities().values()) {
+            System.out.println("Entity " + entity.getId() + ": [x=" + entity.getX() + ", y=" + entity.getY() + ", w="
+                    + entity.getWidth() + ", h=" + entity.getHeight() + "]");
+
+            // because swing doesn't work with negative sizes
+            final int x1 = remapXCoords(entity.getX()), y1 = remapYCoords(entity.getY()),
+                    x2 = x1 + rescaleWidth(entity.getWidth()), y2 = y1 + rescaleHeight(entity.getHeight());
+
+            final int botX = Math.min(x1, x2), botY = Math.min(y1, y2), topX = Math.max(x1, x2),
+                    topY = Math.max(y1, y2);
+            final int width = topX - botX, height = topY - botY;
+            graphics2d.fillRect(botX, botY, width, height);
         }
     }
 
-    private int remapXCoords(double gameX) {
-        return remap(gameX, -100, 100, getWidth(), 0);
+    private int remapXCoords(final double gameX) {
+        return remap(gameX, gameViewRanges[0][0], gameViewRanges[0][1], getWidth(), 0);
     }
 
-    private int remapYCoords(double gameY) {
-        return remap(gameY, -100, 100, getHeight(), 0);
+    private int remapYCoords(final double gameY) {
+        return remap(gameY, gameViewRanges[1][0], gameViewRanges[1][1], getHeight(), 0);
     }
 
-    private int remap(double initialPoint, double initialBottom, double initialTop, double newBottom, double newTop) {
+    private int remap(final double initialPoint, final double initialBottom, final double initialTop,
+            final double newBottom, final double newTop) {
 
         // ratio of [length between point and bottom]:[total initial length]
-        double ratio = (initialPoint - initialBottom) / (initialTop - initialBottom);
+        final double ratio = (initialPoint - initialBottom) / (initialTop - initialBottom);
 
         // distance between the new point and new bottom
-        double newDist = (newTop - newBottom) * ratio;
+        final double newDist = (newTop - newBottom) * ratio;
 
-        double newPoint = newBottom + newDist;
+        final double newPoint = newBottom + newDist;
         return (int) Math.round(newPoint); // round because if cast to int across 0, it is not good
     }
 
-    private int rescaleWidth(double gameWidth) {
+    private int rescaleWidth(final double gameWidth) {
         return rescale(gameWidth, gameViewRanges[0][1] - gameViewRanges[0][0], getWidth());
     }
 
-    private int rescaleHeight(double gameHeight) {
+    private int rescaleHeight(final double gameHeight) {
         return rescale(gameHeight, gameViewRanges[1][1] - gameViewRanges[1][0], getHeight());
     }
 
-    private int rescale(double initialLength, double initialRange, double newRange) {
+    private int rescale(final double initialLength, final double initialRange, final double newRange) {
 
         // ratio of [initial length]:[initial range]
-        double ratio = initialLength / initialRange;
+        final double ratio = initialLength / initialRange;
 
-        double newLength = newRange * ratio;
+        final double newLength = newRange * ratio;
         return (int) Math.round(newLength);
     }
 }

@@ -17,6 +17,7 @@ import src.main.shooter.utils.ArraySet;
  * @see java.util.ArrayList
  */
 public class ActionSet implements Serializable {
+    private static final long serialVersionUID = -4852037557772448218L;
     private final ArrayList<Action> instantActions;
     private final ArraySet<Action> longActions;
 
@@ -31,5 +32,10 @@ public class ActionSet implements Serializable {
 
     public ArraySet<Action> getLongActions() {
         return longActions;
+    }
+
+    @Override
+    public String toString() {
+        return "ActionSet [instantActions=" + instantActions + ", longActions=" + longActions + "]";
     }
 }

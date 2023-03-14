@@ -5,13 +5,14 @@ import java.io.Serializable;
 import src.main.shooter.game.action.ActionSet;
 
 public class Entity implements Serializable {
-    private double x, y;
+    private static final long serialVersionUID = -1816334362202070857L;
+    private double x, y; // bottom left corner, not center
     private final int id;
     private final double width, height;
 
     private ActionSet actionSet;
 
-    public Entity(int id, double x, double y, double width, double height) {
+    public Entity(final int id, final double x, final double y, final double width, final double height) {
         this.id = id;
         this.x = x;
         this.y = y;
@@ -27,6 +28,10 @@ public class Entity implements Serializable {
 
     public int getId() {
         return id;
+    }
+
+    public void shiftX(final double shiftFactor) {
+        x += shiftFactor;
     }
 
     public double getX() {
@@ -45,15 +50,15 @@ public class Entity implements Serializable {
         return height;
     }
 
-    public void setX(double x) {
+    public void setX(final double x) {
         this.x = x;
     }
 
-    public void setY(double y) {
+    public void setY(final double y) {
         this.y = y;
     }
 
-    public void setActionSet(ActionSet actionSet) {
+    public void setActionSet(final ActionSet actionSet) {
         this.actionSet = actionSet;
     }
 }

@@ -5,13 +5,13 @@ import java.util.TreeMap;
 import src.main.shooter.game.action.ActionSet;
 
 public class ClientGame {
-    private ActionSet actionSet;
+    private final ActionSet actionSet;
 
-    private int playerId;
+    private final int playerId;
 
     private TreeMap<Integer, Entity> entities;
 
-    public ClientGame(int clientId) {
+    public ClientGame(final int clientId) {
         playerId = clientId;
         actionSet = new ActionSet();
     }
@@ -25,7 +25,7 @@ public class ClientGame {
         return entities.get(playerId);
     }
 
-    public void addEntity(Entity entity) {
+    public void addEntity(final Entity entity) {
         entities.put(entity.getId(), entity);
     }
 
@@ -33,7 +33,7 @@ public class ClientGame {
         return entities;
     }
 
-    public void processEntityList(TreeMap<Integer, Entity> incomingEntityList) {
+    public void processEntityList(final TreeMap<Integer, Entity> incomingEntityList) {
         entities = incomingEntityList;
     }
 

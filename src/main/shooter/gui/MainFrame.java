@@ -7,10 +7,12 @@ import javax.swing.JFrame;
 import src.main.shooter.game.ClientGame;
 
 public class MainFrame extends JFrame {
-    public MainFrame(ClientGame game) {
+    private static final long serialVersionUID = 7352768790051012L;
+
+    public MainFrame(final ClientGame game) {
         super("Test");
 
-        GamePanel gamePanel = new GamePanel(game);
+        final GamePanel gamePanel = new GamePanel(game);
 
         add(gamePanel, BorderLayout.CENTER);
 

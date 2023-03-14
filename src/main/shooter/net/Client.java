@@ -17,12 +17,12 @@ public class Client implements Runnable {
     private ClientGame game;
     private MainFrame mainFrame;
 
-    public Client(String ipAddress, int port) {
+    public Client(final String ipAddress, final int port) {
         try {
             socket = new Socket(ipAddress, port);
             inputStream = new ObjectInputStream(socket.getInputStream());
             outputStream = new ObjectOutputStream(socket.getOutputStream());
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
 
@@ -32,7 +32,7 @@ public class Client implements Runnable {
     @SuppressWarnings("unchecked")
     private void initialServerCommunication() {
         try {
-            int clientId = inputStream.readInt();
+            final int clientId = inputStream.readInt();
             game = new ClientGame(clientId);
 
             game.processEntityList(((TreeMap<Integer, Entity>) inputStream.readObject()));
@@ -40,9 +40,9 @@ public class Client implements Runnable {
             mainFrame = new MainFrame(game);
 
             System.out.println("Finished initial server communication.");
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (final ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
@@ -62,14 +62,13 @@ public class Client implements Runnable {
                 game.processEntityList(((TreeMap<Integer, Entity>) inputStream.readObject()));
 
                 // write
-                outputStream.writeObject(new Packet(game.getActionSet()));
-                if (game.getActionSet().getLongActions().size() > 0) {
-                    System.out.println("Sent: " + game.getActionSet().getLongActions().size());
-                }
+                final Packet packetToSend = new Packet(game);
+                outputStream.writeObject(packetToSend);
+                outputStream.reset();
                 game.getActionSet().getInstantActions().clear();
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
-            } catch (ClassNotFoundException e) {
+            } catch (final ClassNotFoundException e) {
                 e.printStackTrace();
             }
         }
@@ -82,15 +81,15 @@ public class Client implements Runnable {
         }
     }
 
-    public void send(String s) {
+    public void send(final String s) {
         try {
             outputStream.writeObject(s);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         new Client("localhost", Server.portNumber).run();
     }
 }

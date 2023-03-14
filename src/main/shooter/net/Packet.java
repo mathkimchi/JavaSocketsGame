@@ -1,8 +1,8 @@
 package src.main.shooter.net;
 
-import java.io.Serial;
 import java.io.Serializable;
 
+import src.main.shooter.game.ClientGame;
 import src.main.shooter.game.Entity;
 import src.main.shooter.game.action.ActionSet;
 
@@ -11,14 +11,23 @@ import src.main.shooter.game.action.ActionSet;
  * (I feel like my grammar is incorrect.)
  */
 public class Packet implements Serializable {
-    @Serial
+    private static final long serialVersionUID = -8731243900388342502L;
+
     public final ActionSet actionSet;
 
-    public Packet(Entity entity) {
+    @Deprecated
+    public Packet(final Entity entity) {
         actionSet = entity.getActionSet();
     }
 
-    public Packet(ActionSet actionSet) {
-        this.actionSet = actionSet;
+    public Packet(final ClientGame game) {
+        this.actionSet = game.getActionSet();
+        // this.actionSet = new ActionSet();
+        // this.actionSet.getLongActions().add(null);
+    }
+
+    @Override
+    public String toString() {
+        return "Packet [actionSet=" + actionSet + "]";
     }
 }

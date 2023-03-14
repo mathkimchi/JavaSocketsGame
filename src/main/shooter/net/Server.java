@@ -86,14 +86,14 @@ public class Server implements Runnable {
     public final static int portNumber = 1234;
 
     private ServerSocket serverSocket;
-    private ServerGame game;
-    private ArrayList<ClientHandler> clientHandlers;
+    private final ServerGame game;
+    private final ArrayList<ClientHandler> clientHandlers;
 
-    public Server(ServerGame game) {
+    public Server(final ServerGame game) {
         this.game = game;
         try {
             this.serverSocket = new ServerSocket(portNumber);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
         clientHandlers = new ArrayList<ClientHandler>();
@@ -110,12 +110,12 @@ public class Server implements Runnable {
         while (true) {
             System.out.println("Waiting for new client.");
             try {
-                Socket socket = serverSocket.accept();
+                final Socket socket = serverSocket.accept();
                 System.out.println("A new client has connected.");
-                ClientHandler clientHandler = new ClientHandler(this, socket, game.spawnPlayerEntity());
+                final ClientHandler clientHandler = new ClientHandler(this, socket, game.spawnPlayerEntity());
                 clientHandlers.add(clientHandler);
                 new Thread(clientHandler).start();
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
             }
         }
@@ -125,7 +125,7 @@ public class Server implements Runnable {
         long lastTickTime = System.nanoTime();
 
         while (true) {
-            long whenShouldNextTickRun = lastTickTime + MILLISECONDS_PER_TICK;
+            final long whenShouldNextTickRun = lastTickTime + MILLISECONDS_PER_TICK;
             if (System.nanoTime() < whenShouldNextTickRun) {
                 continue;
             }
@@ -138,23 +138,23 @@ public class Server implements Runnable {
         }
     }
 
-    public void processPacket(int clientEntityId, Packet packet) {
+    public void processPacket(final int clientEntityId, final Packet packet) {
         game.updateActionSet(clientEntityId, packet.actionSet);
     }
 
     // server to all client
     private void sendUpdatesToAll() {
-        for (ClientHandler clientHandler : clientHandlers) {
+        for (final ClientHandler clientHandler : clientHandlers) {
             sendUpdates(clientHandler);
         }
     }
 
     // server to one client
-    public void sendUpdates(ClientHandler clientHandler) {
+    public void sendUpdates(final ClientHandler clientHandler) {
         clientHandler.sendUpdate(game.getEntities());
     }
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         new Server(new ServerGame()).run();
     }
 }
