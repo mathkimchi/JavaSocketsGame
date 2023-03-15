@@ -1,26 +1,19 @@
-package src.main.shooter.net;
-
-import java.io.Serializable;
+package src.main.shooter.net.packets;
 
 import src.main.shooter.game.ClientGame;
 import src.main.shooter.game.Entity;
 import src.main.shooter.game.action.ActionSet;
 
-/**
- * Stores only the actions--instant and long, of an entity.
- * (I feel like my grammar is incorrect.)
- */
-public class Packet implements Serializable {
-    private static final long serialVersionUID = -8731243900388342502L;
-
+public class ActionPacket extends Packet {
+    private static final long serialVersionUID = -710902470934092114L;
     public final ActionSet actionSet;
 
     @Deprecated
-    public Packet(final Entity entity) {
+    public ActionPacket(final Entity entity) {
         actionSet = entity.getActionSet();
     }
 
-    public Packet(final ClientGame game) {
+    public ActionPacket(final ClientGame game) {
         this.actionSet = game.getActionSet();
         // this.actionSet = new ActionSet();
         // this.actionSet.getLongActions().add(null);

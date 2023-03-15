@@ -7,13 +7,19 @@ import java.net.Socket;
 import java.util.TreeMap;
 
 import src.main.shooter.game.Entity;
+import src.main.shooter.net.packets.Packet;
 
 public class ClientHandler implements Runnable {
+    private boolean isRunning;
     private final int entityId;
     private final Server server;
     private final Socket socket;
     private ObjectOutputStream outputStream;
     private ObjectInputStream inputStream;
+
+    public int getEntityId() {
+        return entityId;
+    }
 
     public ClientHandler(final Server server, final Socket socket, final int id) {
         this.server = server;
@@ -41,15 +47,16 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
+        isRunning = true;
         startRecieveMessageLoop();
     }
 
     // client to server
     private void startRecieveMessageLoop() {
-        while (socket.isConnected()) {
+        while (isRunning) {
             try {
                 final Packet packet = (Packet) inputStream.readObject();
-                server.processPacket(entityId, packet);
+                server.processPacket(this, packet);
             } catch (final IOException e) {
                 e.printStackTrace();
             } catch (final ClassNotFoundException e) {
@@ -60,9 +67,28 @@ public class ClientHandler implements Runnable {
 
     // server to client
     public void sendUpdate(final TreeMap<Integer, Entity> update) {
+        if (!isRunning) {
+            return;
+        }
+
         try {
             outputStream.writeObject(update);
             outputStream.reset();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void disconnect() {
+        System.out.println("A client has disconnected.");
+
+        isRunning = false;
+
+        // close everything
+        try {
+            socket.close();
+            inputStream.close();
+            outputStream.close();
         } catch (final IOException e) {
             e.printStackTrace();
         }

@@ -30,8 +30,13 @@ public class ServerGame {
         return entities;
     }
 
-    public void updateActionSet(final int i, final ActionSet actionSet) {
-        entities.get(i).setActionSet(actionSet);
+    public void updateActionSet(final int id, final ActionSet actionSet) {
+        entities.get(id).setActionSet(actionSet);
+    }
+
+    public void removeEntity(final int id) {
+        // TODO: would have some saving in here
+        entities.remove(id);
     }
 
     public void tick() {

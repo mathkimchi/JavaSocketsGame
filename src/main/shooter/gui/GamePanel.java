@@ -31,12 +31,13 @@ public class GamePanel extends JPanel {
 
     @Override
     public void paint(final Graphics g) {
-        System.out.println("Starting to paint.");
+        // System.out.println("Starting to paint.");
         final Graphics2D graphics2d = (Graphics2D) g;
         graphics2d.setColor(Color.BLACK);
         for (final Entity entity : game.getEntities().values()) {
-            System.out.println("Entity " + entity.getId() + ": [x=" + entity.getX() + ", y=" + entity.getY() + ", w="
-                    + entity.getWidth() + ", h=" + entity.getHeight() + "]");
+            // System.out.println("Entity " + entity.getId() + ": [x=" + entity.getX() + ",
+            // y=" + entity.getY() + ", w="
+            // + entity.getWidth() + ", h=" + entity.getHeight() + "]");
 
             // because swing doesn't work with negative sizes
             final int x1 = remapXCoords(entity.getX()), y1 = remapYCoords(entity.getY()),

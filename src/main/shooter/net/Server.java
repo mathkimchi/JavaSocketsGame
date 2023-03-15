@@ -6,6 +6,9 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 import src.main.shooter.game.ServerGame;
+import src.main.shooter.net.packets.ActionPacket;
+import src.main.shooter.net.packets.DisconnectPacket;
+import src.main.shooter.net.packets.Packet;
 
 /**
  * Can either make server tell every single client every single entity's
@@ -138,8 +141,14 @@ public class Server implements Runnable {
         }
     }
 
-    public void processPacket(final int clientEntityId, final Packet packet) {
-        game.updateActionSet(clientEntityId, packet.actionSet);
+    public void processPacket(final ClientHandler clientHandler, final Packet packet) {
+        if (packet instanceof final ActionPacket actionPacket) {
+            game.updateActionSet(clientHandler.getEntityId(), actionPacket.actionSet);
+        } else if (packet instanceof final DisconnectPacket disconnectPacket) {
+            clientHandler.disconnect();
+            game.removeEntity(clientHandler.getEntityId());
+            clientHandlers.remove(clientHandler);
+        }
     }
 
     // server to all client
