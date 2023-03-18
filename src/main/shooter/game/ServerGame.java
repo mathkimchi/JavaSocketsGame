@@ -2,6 +2,7 @@ package src.main.shooter.game;
 
 import java.util.TreeMap;
 
+import src.main.shooter.game.Entity.Direction;
 import src.main.shooter.game.action.Action;
 import src.main.shooter.game.action.ActionSet;
 
@@ -50,10 +51,12 @@ public class ServerGame {
             for (final Action action : entity.getActionSet().getLongActions()) {
                 switch (action) {
                     case LEFT_WALK:
+                        entity.setDirection(Direction.LEFT);
                         entity.shiftX(-GameSettings.WALK_SPEED);
                         break;
 
                     case RIGHT_WALK:
+                        entity.setDirection(Direction.RIGHT);
                         entity.shiftX(GameSettings.WALK_SPEED);
                         break;
 
@@ -71,7 +74,7 @@ public class ServerGame {
      * @return New entity's id.
      */
     public int spawnPlayerEntity() {
-        final Entity player = new Entity(getSmallestAvailableId(), 0, 0, 1, 2);
+        final Entity player = new Entity(getSmallestAvailableId(), 1, 2, 0, 0, Entity.Direction.LEFT);
         addEntity(player);
         return player.getId();
     }

@@ -4,7 +4,13 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import src.main.shooter.game.ClientGame;
@@ -15,8 +21,25 @@ public class GamePanel extends JPanel {
     private final double[][] gameViewRanges = new double[][] { { 2, -2 }, { 2, -2 } }; // {xRange, yRange}
     private final ClientGame game;
 
+    private BufferedImage rightPlayerSprite, leftPlayerSprite;
+
     public GamePanel(final ClientGame game) {
         this.game = game;
+        initSprites();
+    }
+
+    private void initSprites() {
+        try {
+            rightPlayerSprite = ImageIO.read(new File("src/res/Right-Facing-Shooter.png"));
+
+            // flip right player sprite to get left player sprite
+            final AffineTransform transform = AffineTransform.getScaleInstance(-1, 1);
+            transform.translate(-rightPlayerSprite.getWidth(), 0);
+            final AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+            leftPlayerSprite = op.filter(rightPlayerSprite, null);
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -46,7 +69,16 @@ public class GamePanel extends JPanel {
             final int botX = Math.min(x1, x2), botY = Math.min(y1, y2), topX = Math.max(x1, x2),
                     topY = Math.max(y1, y2);
             final int width = topX - botX, height = topY - botY;
-            graphics2d.fillRect(botX, botY, width, height);
+
+            final BufferedImage sprite = switch (entity.getDirection()) {
+                case LEFT ->
+                    leftPlayerSprite;
+                case RIGHT ->
+                    rightPlayerSprite;
+                default ->
+                    throw new RuntimeException("Direction not left or right.");
+            };
+            graphics2d.drawImage(sprite, botX, botY, width, height, null);
         }
     }
 
