@@ -2,9 +2,10 @@ package src.main.shooter.game;
 
 import java.util.TreeMap;
 
-import src.main.shooter.game.Entity.Direction;
-import src.main.shooter.game.action.Action;
 import src.main.shooter.game.action.ActionSet;
+import src.main.shooter.game.entities.Entity;
+import src.main.shooter.game.entities.HorDirectionedEntity.HorDirection;
+import src.main.shooter.game.entities.PlayerEntity;
 
 public class ServerGame {
     public class GameSettings {
@@ -42,28 +43,7 @@ public class ServerGame {
 
     public void tick() {
         for (final Entity entity : entities.values()) {
-            // for (Action action : entity.getActionSet().getInstantActions()) {
-            // // TODO
-            // }
-
-            entity.getActionSet().getInstantActions().clear();
-
-            for (final Action action : entity.getActionSet().getLongActions()) {
-                switch (action) {
-                    case LEFT_WALK:
-                        entity.setDirection(Direction.LEFT);
-                        entity.shiftX(-GameSettings.WALK_SPEED);
-                        break;
-
-                    case RIGHT_WALK:
-                        entity.setDirection(Direction.RIGHT);
-                        entity.shiftX(GameSettings.WALK_SPEED);
-                        break;
-
-                    default:
-                        break;
-                }
-            }
+            entity.tick();
         }
     }
 
@@ -74,7 +54,7 @@ public class ServerGame {
      * @return New entity's id.
      */
     public int spawnPlayerEntity() {
-        final Entity player = new Entity(getSmallestAvailableId(), 1, 2, 0, 0, Entity.Direction.LEFT);
+        final PlayerEntity player = new PlayerEntity(getSmallestAvailableId(), 0, 0, HorDirection.LEFT);
         addEntity(player);
         return player.getId();
     }

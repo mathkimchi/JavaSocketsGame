@@ -18,6 +18,7 @@ import src.main.shooter.utils.ArraySet;
  */
 public class ActionSet implements Serializable {
     private static final long serialVersionUID = -4852037557772448218L;
+
     private final ArrayList<Action> instantActions;
     private final ArraySet<Action> longActions;
 

@@ -3,6 +3,8 @@ package src.main.shooter.game;
 import java.util.TreeMap;
 
 import src.main.shooter.game.action.ActionSet;
+import src.main.shooter.game.entities.Entity;
+import src.main.shooter.game.entities.PlayerEntity;
 
 public class ClientGame {
     private final ActionSet actionSet;
@@ -21,8 +23,8 @@ public class ClientGame {
     }
 
     @Deprecated
-    public Entity getPlayerEntity() {
-        return entities.get(playerId);
+    public PlayerEntity getPlayerEntity() {
+        return (PlayerEntity) entities.get(playerId);
     }
 
     public void addEntity(final Entity entity) {

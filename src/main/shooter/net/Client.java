@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.util.TreeMap;
 
 import src.main.shooter.game.ClientGame;
-import src.main.shooter.game.Entity;
+import src.main.shooter.game.entities.Entity;
 import src.main.shooter.gui.MainFrame;
 import src.main.shooter.net.packets.ActionPacket;
 import src.main.shooter.net.packets.DisconnectPacket;

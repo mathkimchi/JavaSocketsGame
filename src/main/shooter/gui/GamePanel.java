@@ -9,15 +9,19 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import src.main.shooter.game.ClientGame;
-import src.main.shooter.game.Entity;
+import src.main.shooter.game.entities.Entity;
+import src.main.shooter.game.entities.PlayerEntity;
 
 public class GamePanel extends JPanel {
     private static final long serialVersionUID = -355339008103996038L;
+    private static final Logger logger = Logger.getLogger(GamePanel.class.getName());
+
     private final double[][] gameViewRanges = new double[][] { { 2, -2 }, { 2, -2 } }; // {xRange, yRange}
     private final ClientGame game;
 
@@ -70,14 +74,27 @@ public class GamePanel extends JPanel {
                     topY = Math.max(y1, y2);
             final int width = topX - botX, height = topY - botY;
 
-            final BufferedImage sprite = switch (entity.getDirection()) {
-                case LEFT ->
-                    leftPlayerSprite;
-                case RIGHT ->
-                    rightPlayerSprite;
-                default ->
-                    throw new RuntimeException("Direction not left or right.");
-            };
+            BufferedImage sprite;
+
+            if (entity instanceof final PlayerEntity playerEntity) {
+                sprite = switch (playerEntity.getHorDirection()) {
+                    case LEFT ->
+                        leftPlayerSprite;
+                    case RIGHT ->
+                        rightPlayerSprite;
+                    default ->
+                        throw new RuntimeException("Direction not left or right.");
+                };
+            } else {
+                // create a purple square
+                sprite = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+                final Graphics2D spriteGraphics2d = sprite.createGraphics();
+                spriteGraphics2d.setColor(Color.MAGENTA);
+                spriteGraphics2d.drawRect(0, 0, 1, 1);
+                spriteGraphics2d.dispose();
+
+                logger.warning("Entity of unknown type");
+            }
             graphics2d.drawImage(sprite, botX, botY, width, height, null);
         }
     }
