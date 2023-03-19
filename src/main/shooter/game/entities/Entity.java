@@ -39,8 +39,12 @@ public abstract class Entity implements Serializable {
         return height;
     }
 
-    public void shiftX(final double shiftFactor) {
-        x += shiftFactor;
+    public double shiftX(final double shiftFactor) {
+        return x += shiftFactor;
+    }
+
+    public double shiftY(final double shiftFactor) {
+        return y += shiftFactor;
     }
 
     public double getX() {
@@ -63,5 +67,9 @@ public abstract class Entity implements Serializable {
         this.actionSet = actionSet;
     }
 
+    /**
+     * I'd rather have the game just calculate everything, because of things like
+     * gravity and collisions. However, this is the standard way apparently.
+     */
     public abstract void tick();
 }

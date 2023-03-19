@@ -9,7 +9,7 @@ import src.main.shooter.game.entities.PlayerEntity;
 
 public class ServerGame {
     public class GameSettings {
-        public static final double WALK_SPEED = 0.01;
+        public static final double WALK_SPEED = 0.0625;
     }
 
     private int smallestAvailableId = 0;

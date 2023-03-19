@@ -3,16 +3,41 @@ package src.main.shooter.game.entities;
 import src.main.shooter.game.ServerGame.GameSettings;
 import src.main.shooter.game.action.Action;
 
-public class PlayerEntity extends Entity implements HorDirectionedEntity {
+public class PlayerEntity extends Entity implements HorDirectionedEntity, GravitationalEntity {
     private static final long serialVersionUID = -3022640676588904126L;
 
     private HorDirection horDirection;
+
+    private double xVel, yVel;
 
     public PlayerEntity(final int id, final double x, final double y,
             final HorDirection direction) {
         super(id, 1, 2, x, y);
 
         this.horDirection = direction;
+
+        xVel = 0;
+        yVel = 0;
+    }
+
+    @Override
+    public double getYVel() {
+        return yVel;
+    }
+
+    @Override
+    public void setYVel(final double yVel) {
+        this.yVel = yVel;
+    }
+
+    @Override
+    public double getXVel() {
+        return xVel;
+    }
+
+    @Override
+    public void setXVel(final double xVel) {
+        this.xVel = xVel;
     }
 
     @Override
@@ -49,9 +74,11 @@ public class PlayerEntity extends Entity implements HorDirectionedEntity {
             }
         }
 
-        // gravity
+        // physics
+        applyGravity();
+        applyVelocity();
+        System.out.println(getY());
 
         // collision
-
     }
 }

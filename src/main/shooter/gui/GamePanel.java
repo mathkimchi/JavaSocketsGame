@@ -22,7 +22,7 @@ public class GamePanel extends JPanel {
     private static final long serialVersionUID = -355339008103996038L;
     private static final Logger logger = Logger.getLogger(GamePanel.class.getName());
 
-    private final double[][] gameViewRanges = new double[][] { { 2, -2 }, { 2, -2 } }; // {xRange, yRange}
+    private final double[][] gameViewRanges = new double[][] { { -3, 3 }, { -3, 3 } }; // {xRange, yRange}
     private final ClientGame game;
 
     private BufferedImage rightPlayerSprite, leftPlayerSprite;
@@ -60,7 +60,9 @@ public class GamePanel extends JPanel {
     public void paint(final Graphics g) {
         // System.out.println("Starting to paint.");
         final Graphics2D graphics2d = (Graphics2D) g;
-        graphics2d.setColor(Color.BLACK);
+
+        drawDebugGrid(graphics2d);
+
         for (final Entity entity : game.getEntities().values()) {
             // System.out.println("Entity " + entity.getId() +
             // ": [x=" + entity.getX() + ", y=" + entity.getY() + ", w="
@@ -95,12 +97,26 @@ public class GamePanel extends JPanel {
 
                 logger.warning("Entity of unknown type");
             }
-            graphics2d.drawImage(sprite, maxX, maxY, width, height, null);
+            graphics2d.drawImage(sprite, minX, minY, width, height, null);
+        }
+    }
+
+    private void drawDebugGrid(final Graphics2D graphics2d) {
+        graphics2d.setColor(Color.BLACK);
+
+        // vert
+        for (int gameX = (int) gameViewRanges[0][0] - 1; gameX < gameViewRanges[0][1] + 1; gameX++) {
+            graphics2d.drawLine(remapXCoords(gameX), 0, remapXCoords(gameX), getHeight());
+        }
+
+        // hor
+        for (int gameY = (int) gameViewRanges[1][0] - 1; gameY < gameViewRanges[1][1] + 1; gameY++) {
+            graphics2d.drawLine(0, remapYCoords(gameY), getWidth(), remapYCoords(gameY));
         }
     }
 
     private int remapXCoords(final double gameX) {
-        return remap(gameX, gameViewRanges[0][0], gameViewRanges[0][1], getWidth(), 0);
+        return remap(gameX, gameViewRanges[0][0], gameViewRanges[0][1], 0, getWidth());
     }
 
     private int remapYCoords(final double gameY) {
@@ -125,7 +141,7 @@ public class GamePanel extends JPanel {
     }
 
     private int rescaleHeight(final double gameHeight) {
-        return rescale(gameHeight, gameViewRanges[1][1] - gameViewRanges[1][0], getHeight());
+        return rescale(gameHeight, gameViewRanges[1][1] - gameViewRanges[1][0], -getHeight());
     }
 
     private int rescale(final double initialLength, final double initialRange, final double newRange) {
