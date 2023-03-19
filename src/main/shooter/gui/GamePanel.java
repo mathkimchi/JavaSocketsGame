@@ -62,17 +62,17 @@ public class GamePanel extends JPanel {
         final Graphics2D graphics2d = (Graphics2D) g;
         graphics2d.setColor(Color.BLACK);
         for (final Entity entity : game.getEntities().values()) {
-            // System.out.println("Entity " + entity.getId() + ": [x=" + entity.getX() + ",
-            // y=" + entity.getY() + ", w="
+            // System.out.println("Entity " + entity.getId() +
+            // ": [x=" + entity.getX() + ", y=" + entity.getY() + ", w="
             // + entity.getWidth() + ", h=" + entity.getHeight() + "]");
 
             // because swing doesn't work with negative sizes
             final int x1 = remapXCoords(entity.getX()), y1 = remapYCoords(entity.getY()),
                     x2 = x1 + rescaleWidth(entity.getWidth()), y2 = y1 + rescaleHeight(entity.getHeight());
 
-            final int botX = Math.min(x1, x2), botY = Math.min(y1, y2), topX = Math.max(x1, x2),
-                    topY = Math.max(y1, y2);
-            final int width = topX - botX, height = topY - botY;
+            final int minX = Math.min(x1, x2), minY = Math.min(y1, y2), maxX = Math.max(x1, x2),
+                    maxY = Math.max(y1, y2);
+            final int width = maxX - minX, height = maxY - minY;
 
             BufferedImage sprite;
 
@@ -95,7 +95,7 @@ public class GamePanel extends JPanel {
 
                 logger.warning("Entity of unknown type");
             }
-            graphics2d.drawImage(sprite, botX, botY, width, height, null);
+            graphics2d.drawImage(sprite, maxX, maxY, width, height, null);
         }
     }
 
