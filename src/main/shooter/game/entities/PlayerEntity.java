@@ -77,8 +77,34 @@ public class PlayerEntity extends Entity implements HorDirectionedEntity, Gravit
         // physics
         applyGravity();
         applyVelocity();
-        System.out.println(getY());
+    }
 
-        // collision
+    @Override
+    public void handleCollision(final Entity otherEntity) {
+        if (otherEntity instanceof PlatformEntity) {
+            final Vector2D collisionNormal = getCollisionNormal(otherEntity);
+
+            if (collisionNormal.getX() > 0) {
+                System.out.println("Collision normal: " + collisionNormal);
+                // set right of this to the left of other
+                this.setX(otherEntity.getX() - this.getWidth());
+                this.setXVel(0);
+            } else if (collisionNormal.getX() < 0) {
+                System.out.println("Collision normal: " + collisionNormal);
+                // set left of this to the right of other
+                this.setX(otherEntity.getX() + otherEntity.getWidth());
+                this.setXVel(0);
+            }
+
+            if (collisionNormal.getY() > 0) {
+                // set top of this to the bottom of other
+                this.setY(otherEntity.getY() - this.getHeight());
+                this.setYVel(0);
+            } else if (collisionNormal.getY() < 0) {
+                // set bottom of this to the top of other
+                this.setY(otherEntity.getY() + otherEntity.getHeight());
+                this.setYVel(0);
+            }
+        }
     }
 }

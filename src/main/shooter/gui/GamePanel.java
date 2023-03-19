@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 
 import src.main.shooter.game.ClientGame;
 import src.main.shooter.game.entities.Entity;
+import src.main.shooter.game.entities.PlatformEntity;
 import src.main.shooter.game.entities.PlayerEntity;
 
 public class GamePanel extends JPanel {
@@ -87,6 +88,13 @@ public class GamePanel extends JPanel {
                     default ->
                         throw new RuntimeException("Direction not left or right.");
                 };
+            } else if (entity instanceof final PlatformEntity platformEntity) {
+                // TODO: create actual sprite
+                sprite = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+                final Graphics2D spriteGraphics2d = sprite.createGraphics();
+                spriteGraphics2d.setColor(Color.BLUE);
+                spriteGraphics2d.drawRect(0, 0, 1, 1);
+                spriteGraphics2d.dispose();
             } else {
                 // create a purple square
                 sprite = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);

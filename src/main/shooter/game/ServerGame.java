@@ -4,6 +4,7 @@ import java.util.TreeMap;
 
 import src.main.shooter.game.action.ActionSet;
 import src.main.shooter.game.entities.Entity;
+import src.main.shooter.game.entities.PlatformEntity;
 import src.main.shooter.game.entities.HorDirectionedEntity.HorDirection;
 import src.main.shooter.game.entities.PlayerEntity;
 
@@ -12,14 +13,32 @@ public class ServerGame {
         public static final double WALK_SPEED = 0.0625;
     }
 
-    private int smallestAvailableId = 0;
+    private int smallestAvailableId = 0; // Use a UUID generator?
 
-    public int getSmallestAvailableId() {
+    /**
+     * ! WARNING: DO NOT CALL THIS MORE THAN NEEDED, IT CHANGES THE ID NUMBER
+     * 
+     * <p>
+     * 
+     * It's not too big a deal, worst that could happen is that there is an unused
+     * ID number. However, understand that this does assume that you will be using
+     * the ID.
+     *
+     * @return the smallest available id
+     */
+    private int getSmallestAvailableId() {
         return smallestAvailableId++;
     }
 
     public ServerGame() {
         entities = new TreeMap<Integer, Entity>();
+
+        init();
+    }
+
+    private void init() {
+        addEntity(new PlatformEntity(getSmallestAvailableId(), 2, 1, 0, -3));
+        addEntity(new PlatformEntity(getSmallestAvailableId(), 1, 5, -1.5, -3));
     }
 
     public void addEntity(final Entity entity) {
@@ -45,6 +64,15 @@ public class ServerGame {
         for (final Entity entity : entities.values()) {
             entity.tick();
         }
+
+        // collisions
+        for (final Entity entity1 : entities.values()) {
+            for (final Entity entity2 : entities.values()) {
+                if (entity1.isColliding(entity2)) {
+                    entity1.handleCollision(entity2);
+                }
+            }
+        }
     }
 
     /**
@@ -54,7 +82,7 @@ public class ServerGame {
      * @return New entity's id.
      */
     public int spawnPlayerEntity() {
-        final PlayerEntity player = new PlayerEntity(getSmallestAvailableId(), 0, 0, HorDirection.LEFT);
+        final PlayerEntity player = new PlayerEntity(getSmallestAvailableId(), 0, -1, HorDirection.LEFT);
         addEntity(player);
         return player.getId();
     }

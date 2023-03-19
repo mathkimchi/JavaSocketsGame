@@ -72,4 +72,30 @@ public abstract class Entity implements Serializable {
      * gravity and collisions. However, this is the standard way apparently.
      */
     public abstract void tick();
+
+    public abstract void handleCollision(Entity otherEntity);
+
+    public boolean isColliding(final Entity otherEntity) {
+        // Uses AABB collision
+        return getX() < otherEntity.getX() + otherEntity.getWidth() && getX() + getWidth() > otherEntity.getX()
+                && getY() < otherEntity.getY() + otherEntity.getHeight() && getY() + getHeight() > otherEntity.getY()
+                && this != otherEntity;
+    }
+
+    public Vector2D getCollisionNormal(final Entity otherEntity) {
+        // Edge case: collision with a very thin object
+        final double xOverlap = Math.min(this.getX() + this.getWidth(), otherEntity.getX() + otherEntity.getWidth())
+                - Math.max(this.getX(), otherEntity.getX());
+        final double yOverlap = Math.min(this.getY() + this.getHeight(), otherEntity.getY() + otherEntity.getHeight())
+                - Math.max(this.getY(), otherEntity.getY());
+
+        if (xOverlap > yOverlap) { // smaller matters more
+            return new Vector2D(0, Math.signum(otherEntity.getY() - this.getY()));
+        } else if (xOverlap < yOverlap) {
+            return new Vector2D(Math.signum(otherEntity.getX() - this.getX()), 0);
+        } else {
+            return new Vector2D(Math.signum(otherEntity.getX() - this.getY()),
+                    Math.signum(otherEntity.getY() - this.getY()));
+        }
+    }
 }
