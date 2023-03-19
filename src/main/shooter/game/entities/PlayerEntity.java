@@ -1,5 +1,8 @@
 package src.main.shooter.game.entities;
 
+import java.util.logging.Level;
+
+import src.main.shooter.game.ServerGame;
 import src.main.shooter.game.ServerGame.GameSettings;
 import src.main.shooter.game.action.Action;
 
@@ -52,24 +55,40 @@ public class PlayerEntity extends Entity implements HorDirectionedEntity, Gravit
 
     @Override
     public void tick() {
-        // for (Action action : entity.getActionSet().getInstantActions()) {
-        // // TODO
-        // }
+        for (final Action action : getActionSet().getInstantActions()) {
+            switch (action) {
+                case JUMP: {
+                    if (getYVel() != 0) {
+                        break;
+                    }
+                    ServerGame.getLogger().log(Level.INFO, "Jumped");
+                    shiftYVel(GameSettings.JUMP_VEL);
+                    break;
+                }
+
+                default:
+                    ServerGame.getLogger().warning("Unknown action \"" + action + "\" in instant actions.");
+                    break;
+            }
+        }
         getActionSet().getInstantActions().clear();
 
         for (final Action action : getActionSet().getLongActions()) {
             switch (action) {
-                case LEFT_WALK:
+                case LEFT_WALK: {
                     setHorDirection(HorDirection.LEFT);
                     shiftX(-GameSettings.WALK_SPEED);
                     break;
+                }
 
-                case RIGHT_WALK:
+                case RIGHT_WALK: {
                     setHorDirection(HorDirection.RIGHT);
                     shiftX(GameSettings.WALK_SPEED);
                     break;
+                }
 
                 default:
+                    ServerGame.getLogger().warning("Unknown action \"" + action + "\" in long actions.");
                     break;
             }
         }
@@ -85,12 +104,10 @@ public class PlayerEntity extends Entity implements HorDirectionedEntity, Gravit
             final Vector2D collisionNormal = getCollisionNormal(otherEntity);
 
             if (collisionNormal.getX() > 0) {
-                System.out.println("Collision normal: " + collisionNormal);
                 // set right of this to the left of other
                 this.setX(otherEntity.getX() - this.getWidth());
                 this.setXVel(0);
             } else if (collisionNormal.getX() < 0) {
-                System.out.println("Collision normal: " + collisionNormal);
                 // set left of this to the right of other
                 this.setX(otherEntity.getX() + otherEntity.getWidth());
                 this.setXVel(0);

@@ -2,6 +2,7 @@ package src.main.shooter.gui;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
 
 import src.main.shooter.game.ClientGame;
 import src.main.shooter.game.action.Action;
@@ -37,6 +38,7 @@ public class ClientInputHandler implements KeyListener {
         }
 
         final ArraySet<Action> longActions = game.getActionSet().getLongActions();
+        final ArrayList<Action> instantActions = game.getActionSet().getInstantActions();
         switch (keyCode) {
             case KeyEvent.VK_A: {
                 longActions.add(Action.LEFT_WALK);
@@ -46,6 +48,10 @@ public class ClientInputHandler implements KeyListener {
             case KeyEvent.VK_D: {
                 longActions.add(Action.RIGHT_WALK);
                 break;
+            }
+
+            case KeyEvent.VK_SPACE: {
+                instantActions.add(Action.JUMP);
             }
 
             default:

@@ -1,6 +1,7 @@
 package src.main.shooter.game;
 
 import java.util.TreeMap;
+import java.util.logging.Logger;
 
 import src.main.shooter.game.action.ActionSet;
 import src.main.shooter.game.entities.Entity;
@@ -9,8 +10,17 @@ import src.main.shooter.game.entities.HorDirectionedEntity.HorDirection;
 import src.main.shooter.game.entities.PlayerEntity;
 
 public class ServerGame {
+    private static final Logger logger = Logger.getLogger("Server");
+
+    public static Logger getLogger() {
+        return logger;
+    }
+
     public class GameSettings {
+        public static final double GLOBAL_GRAVITY = -0.05;
+
         public static final double WALK_SPEED = 0.0625;
+        public static final double JUMP_VEL = 0.5;
     }
 
     private int smallestAvailableId = 0; // Use a UUID generator?
