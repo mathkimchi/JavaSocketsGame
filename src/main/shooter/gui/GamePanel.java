@@ -15,7 +15,8 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import src.main.shooter.game.ClientGame;
-import src.main.shooter.game.entities.Entity;
+import src.main.shooter.game.ServerGame.Entity;
+import src.main.shooter.game.entities.PistolEntity;
 import src.main.shooter.game.entities.PlatformEntity;
 import src.main.shooter.game.entities.PlayerEntity;
 
@@ -26,22 +27,27 @@ public class GamePanel extends JPanel {
     private final double[][] gameViewRanges = new double[][] { { -3, 3 }, { -3, 3 } }; // {xRange, yRange}
     private final ClientGame game;
 
-    private BufferedImage rightPlayerSprite, leftPlayerSprite;
+    private BufferedImage rightPlayerSprite, leftPlayerSprite, rightPistolSprite, leftPistolSprite;
 
     public GamePanel(final ClientGame game) {
         this.game = game;
         initSprites();
     }
 
+    private BufferedImage getReflectedImage(final BufferedImage originalImage) {
+        // flip right player sprite to get left player sprite
+        final AffineTransform transform = AffineTransform.getScaleInstance(-1, 1);
+        transform.translate(-originalImage.getWidth(), 0);
+        final AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+        return op.filter(originalImage, null);
+    }
+
     private void initSprites() {
         try {
             rightPlayerSprite = ImageIO.read(new File("src/res/Right-Facing-Shooter.png"));
-
-            // flip right player sprite to get left player sprite
-            final AffineTransform transform = AffineTransform.getScaleInstance(-1, 1);
-            transform.translate(-rightPlayerSprite.getWidth(), 0);
-            final AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-            leftPlayerSprite = op.filter(rightPlayerSprite, null);
+            leftPlayerSprite = getReflectedImage(rightPlayerSprite);
+            rightPistolSprite = ImageIO.read(new File("src/res/Right-Facing-Pistol.png"));
+            leftPistolSprite = getReflectedImage(rightPistolSprite);
         } catch (final IOException e) {
             e.printStackTrace();
         }
@@ -81,12 +87,21 @@ public class GamePanel extends JPanel {
 
             if (entity instanceof final PlayerEntity playerEntity) {
                 sprite = switch (playerEntity.getHorDirection()) {
-                    case LEFT ->
-                        leftPlayerSprite;
-                    case RIGHT ->
-                        rightPlayerSprite;
-                    default ->
-                        throw new RuntimeException("Direction not left or right.");
+                    case LEFT -> leftPlayerSprite;
+                    case RIGHT -> rightPlayerSprite;
+                    default -> {
+                        logger.severe("Unstandard hor direction.");
+                        yield null;
+                    }
+                };
+            } else if (entity instanceof final PistolEntity pistolEntity) {
+                sprite = switch (pistolEntity.getHorDirection()) {
+                    case LEFT -> leftPistolSprite;
+                    case RIGHT -> rightPistolSprite;
+                    default -> {
+                        logger.severe("Unstandard hor direction.");
+                        yield null;
+                    }
                 };
             } else if (entity instanceof final PlatformEntity platformEntity) {
                 // TODO: create actual sprite

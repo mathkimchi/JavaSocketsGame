@@ -1,19 +1,158 @@
 package src.main.shooter.game;
 
+import java.io.Serializable;
 import java.util.TreeMap;
 import java.util.logging.Logger;
 
 import src.main.shooter.game.action.ActionSet;
-import src.main.shooter.game.entities.Entity;
-import src.main.shooter.game.entities.PlatformEntity;
 import src.main.shooter.game.entities.HorDirectionedEntity.HorDirection;
+import src.main.shooter.game.entities.PlatformEntity;
 import src.main.shooter.game.entities.PlayerEntity;
+import src.main.shooter.game.entities.Vector2D;
 
 public class ServerGame {
-    private static final Logger logger = Logger.getLogger("Server");
+    /**
+     * Static so that the implicit reference to outer class isn't serialized.
+     * 
+     * Should I create a rectangle class?
+     */
+    public static abstract class Entity implements Serializable {
+        private static final long serialVersionUID = -1816334362202070857L;
 
-    public static Logger getLogger() {
-        return logger;
+        private transient final ServerGame game;
+        private final int id;
+
+        private final double width, height;
+
+        private double x, y; // bottom left corner, not center
+        private ActionSet actionSet;
+
+        public Entity(final ServerGame game, final double width, final double height, final double x,
+                final double y) {
+            this.game = game;
+            this.id = this.game.getSmallestAvailableId();
+            this.width = width;
+            this.height = height;
+            this.x = x;
+            this.y = y;
+
+            actionSet = new ActionSet();
+
+            game.addEntity(this);
+        }
+
+        public ServerGame getGame() {
+            return game;
+        }
+
+        public ActionSet getActionSet() {
+            return actionSet;
+        }
+
+        public final int getId() {
+            return id;
+        }
+
+        public double getWidth() {
+            return width;
+        }
+
+        public double getHeight() {
+            return height;
+        }
+
+        public double shiftX(final double shiftFactor) {
+            return x += shiftFactor;
+        }
+
+        public double shiftY(final double shiftFactor) {
+            return y += shiftFactor;
+        }
+
+        /**
+         * @return the X coordinate value of the left bottom point of the entity.
+         */
+        public double getX() {
+            return x;
+        }
+
+        /**
+         * @return the Y coordinate value of the left bottom point of the entity.
+         */
+        public double getY() {
+            return y;
+        }
+
+        public double getLeftX() {
+            return getX();
+        }
+
+        public double getBottomY() {
+            return getY();
+        }
+
+        public double getRightX() {
+            return getLeftX() + getWidth();
+        }
+
+        public double getTopY() {
+            return getBottomY() + getHeight();
+        }
+
+        public double getCenterX() {
+            return getLeftX() + getWidth() / 2;
+        }
+
+        public double getCenterY() {
+            return getBottomY() + getHeight() / 2;
+        }
+
+        public void setX(final double x) {
+            this.x = x;
+        }
+
+        public void setY(final double y) {
+            this.y = y;
+        }
+
+        public void setActionSet(final ActionSet actionSet) {
+            this.actionSet = actionSet;
+        }
+
+        /**
+         * I'd rather have the game just calculate everything, because of things like
+         * gravity and collisions. However, this is the standard way apparently.
+         */
+        public abstract void tick();
+
+        public abstract void handleCollision(Entity otherEntity);
+
+        public boolean isColliding(final Entity otherEntity) {
+            // Uses AABB collision
+            return getX() < otherEntity.getX() + otherEntity.getWidth() && getX() + getWidth() > otherEntity.getX()
+                    && getY() < otherEntity.getY() + otherEntity.getHeight()
+                    && getY() + getHeight() > otherEntity.getY()
+                    && this != otherEntity;
+        }
+
+        public Vector2D getCollisionNormal(final Entity otherEntity) {
+            // Edge case: collision with a very thin object and jumping on the edge of
+            // platform
+            final double xOverlap = Math.min(this.getX() + this.getWidth(), otherEntity.getX() + otherEntity.getWidth())
+                    - Math.max(this.getX(), otherEntity.getX());
+            final double yOverlap = Math.min(this.getY() + this.getHeight(),
+                    otherEntity.getY() + otherEntity.getHeight())
+                    - Math.max(this.getY(), otherEntity.getY());
+
+            if (xOverlap > yOverlap) { // smaller matters more
+                return new Vector2D(0, Math.signum(otherEntity.getY() - this.getY()));
+            } else if (xOverlap < yOverlap) {
+                return new Vector2D(Math.signum(otherEntity.getX() - this.getX()), 0);
+            } else {
+                return new Vector2D(Math.signum(otherEntity.getX() - this.getY()),
+                        Math.signum(otherEntity.getY() - this.getY()));
+            }
+        }
     }
 
     public class GameSettings {
@@ -23,39 +162,21 @@ public class ServerGame {
         public static final double JUMP_VEL = 0.5;
     }
 
+    private static final Logger logger = Logger.getLogger("Server");
+
+    public static Logger getLogger() {
+        return logger;
+    }
+
     private int smallestAvailableId = 0; // Use a UUID generator?
 
-    /**
-     * ! WARNING: DO NOT CALL THIS MORE THAN NEEDED, IT CHANGES THE ID NUMBER
-     * 
-     * <p>
-     * 
-     * It's not too big a deal, worst that could happen is that there is an unused
-     * ID number. However, understand that this does assume that you will be using
-     * the ID.
-     *
-     * @return the smallest available id
-     */
-    private int getSmallestAvailableId() {
-        return smallestAvailableId++;
-    }
+    private final TreeMap<Integer, Entity> entities;
 
     public ServerGame() {
         entities = new TreeMap<Integer, Entity>();
 
         init();
     }
-
-    private void init() {
-        addEntity(new PlatformEntity(getSmallestAvailableId(), 2, 1, 0, -3));
-        addEntity(new PlatformEntity(getSmallestAvailableId(), 1, 5, -1.5, -3));
-    }
-
-    public void addEntity(final Entity entity) {
-        entities.put(entity.getId(), entity);
-    }
-
-    private final TreeMap<Integer, Entity> entities;
 
     public TreeMap<Integer, Entity> getEntities() {
         return entities;
@@ -92,8 +213,31 @@ public class ServerGame {
      * @return New entity's id.
      */
     public int spawnPlayerEntity() {
-        final PlayerEntity player = new PlayerEntity(getSmallestAvailableId(), 0, -1, HorDirection.LEFT);
-        addEntity(player);
+        final PlayerEntity player = new PlayerEntity(this, 0, -1, HorDirection.LEFT);
         return player.getId();
+    }
+
+    /**
+     * ! WARNING: DO NOT CALL THIS MORE THAN NEEDED, IT CHANGES THE ID NUMBER
+     * 
+     * <p>
+     * 
+     * It's not too big a deal, worst that could happen is that there is an unused
+     * ID number. However, understand that this does assume that you will be using
+     * the ID.
+     *
+     * @return the smallest available id
+     */
+    private int getSmallestAvailableId() {
+        return smallestAvailableId++;
+    }
+
+    private void init() {
+        addEntity(new PlatformEntity(this, 2, 1, 0, -3));
+        addEntity(new PlatformEntity(this, 1, 5, -1.5, -3));
+    }
+
+    private void addEntity(final Entity entity) {
+        entities.put(entity.getId(), entity);
     }
 }

@@ -6,7 +6,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.TreeMap;
 
-import src.main.shooter.game.entities.Entity;
+import src.main.shooter.game.ServerGame.Entity;
 import src.main.shooter.net.packets.Packet;
 
 public class ClientHandler implements Runnable {

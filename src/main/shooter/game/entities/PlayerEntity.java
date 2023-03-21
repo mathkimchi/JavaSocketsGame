@@ -1,26 +1,28 @@
 package src.main.shooter.game.entities;
 
-import java.util.logging.Level;
-
 import src.main.shooter.game.ServerGame;
+import src.main.shooter.game.ServerGame.Entity;
 import src.main.shooter.game.ServerGame.GameSettings;
 import src.main.shooter.game.action.Action;
 
 public class PlayerEntity extends Entity implements HorDirectionedEntity, GravitationalEntity {
     private static final long serialVersionUID = -3022640676588904126L;
 
-    private HorDirection horDirection;
+    private final PistolEntity pistol;
 
+    private HorDirection horDirection;
     private double xVel, yVel;
 
-    public PlayerEntity(final int id, final double x, final double y,
+    public PlayerEntity(final ServerGame game, final double x, final double y,
             final HorDirection direction) {
-        super(id, 1, 2, x, y);
+        super(game, 1, 2, x, y);
 
         this.horDirection = direction;
 
         xVel = 0;
         yVel = 0;
+
+        this.pistol = new PistolEntity(this);
     }
 
     @Override
@@ -59,9 +61,8 @@ public class PlayerEntity extends Entity implements HorDirectionedEntity, Gravit
             switch (action) {
                 case JUMP: {
                     if (getYVel() != 0) {
-                        break;
+                        // break;
                     }
-                    ServerGame.getLogger().log(Level.INFO, "Jumped");
                     shiftYVel(GameSettings.JUMP_VEL);
                     break;
                 }

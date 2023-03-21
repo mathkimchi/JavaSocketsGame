@@ -1,8 +1,8 @@
 package src.main.shooter.net.packets;
 
 import src.main.shooter.game.ClientGame;
+import src.main.shooter.game.ServerGame.Entity;
 import src.main.shooter.game.action.ActionSet;
-import src.main.shooter.game.entities.Entity;
 
 public class ActionPacket extends Packet {
     private static final long serialVersionUID = -710902470934092114L;

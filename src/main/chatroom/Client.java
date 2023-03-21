@@ -9,7 +9,7 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class Client {
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         new Client(Server.port);
     }
 
@@ -17,7 +17,7 @@ public class Client {
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
 
-    public Client(int port) {
+    public Client(final int port) {
         try {
             socket = new Socket("localhost", port);
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -26,18 +26,20 @@ public class Client {
             setUsername();
             startReadMessageLoop();
             startSendMessageLoop();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void setUsername() throws IOException {
+    private void setUsername() {
         System.out.print("Enter your username: ");
         try (Scanner scanner = new Scanner(System.in)) {
             bufferedWriter.write(scanner.nextLine());
+            bufferedWriter.newLine();
+            bufferedWriter.flush();
+        } catch (final IOException e) {
+            e.printStackTrace();
         }
-        bufferedWriter.newLine();
-        bufferedWriter.flush();
         System.out.println("Sent username information.");
     }
 
@@ -49,7 +51,7 @@ public class Client {
                 bufferedWriter.flush();
             }
             System.out.println("Send message loop done.");
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
         // new Thread(new Runnable() {
@@ -68,7 +70,7 @@ public class Client {
                         System.out.println(bufferedReader.readLine());
                     }
                     System.out.println("Read message loop done.");
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     e.printStackTrace();
                 }
             }

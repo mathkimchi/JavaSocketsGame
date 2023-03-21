@@ -2,8 +2,8 @@ package src.main.shooter.game;
 
 import java.util.TreeMap;
 
+import src.main.shooter.game.ServerGame.Entity;
 import src.main.shooter.game.action.ActionSet;
-import src.main.shooter.game.entities.Entity;
 import src.main.shooter.game.entities.PlayerEntity;
 
 public class ClientGame {
