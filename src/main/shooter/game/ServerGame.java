@@ -1,6 +1,9 @@
 package src.main.shooter.game;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.Serializable;
+import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.logging.Logger;
 
@@ -158,10 +161,10 @@ public class ServerGame {
     public class GameSettings {
         public static final double GLOBAL_GRAVITY = -0.05;
 
-        public static final double WALK_SPEED = 0.0625;
+        public static final double WALK_SPEED = 0.125;
         public static final double JUMP_VEL = 0.5;
 
-        public static final double BULLET_SPEED = 0.125;
+        public static final double BULLET_SPEED = 0.25;
         public static final int BULLET_LIFESPAN = 20;
     }
 
@@ -220,7 +223,7 @@ public class ServerGame {
      * @return New entity's id.
      */
     public int spawnPlayerEntity() {
-        final PlayerEntity player = new PlayerEntity(this, 0, -1, HorDirection.LEFT);
+        final PlayerEntity player = new PlayerEntity(this, 4.5, 5, HorDirection.LEFT);
         return player.getId();
     }
 
@@ -240,8 +243,19 @@ public class ServerGame {
     }
 
     private void init() {
-        addEntity(new PlatformEntity(this, 2, 1, 0, -3));
-        addEntity(new PlatformEntity(this, 1, 5, -1.5, -3));
+        // load world platforms
+        try (Scanner platforms = new Scanner(new File("src/res/standard-map-platform-rectangles.csv"))) {
+            while (platforms.hasNextLine()) {
+                final String[] dimensionsString = platforms.nextLine().split(",");
+                new PlatformEntity(this,
+                        Double.parseDouble(dimensionsString[0]),
+                        Double.parseDouble(dimensionsString[1]),
+                        Double.parseDouble(dimensionsString[2]),
+                        Double.parseDouble(dimensionsString[3]));
+            }
+        } catch (final FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     private void addEntity(final Entity entity) {

@@ -61,7 +61,7 @@ public class PlayerEntity extends Entity implements HorDirectionedEntity, Gravit
             switch (action) {
                 case JUMP: {
                     if (getYVel() != 0) {
-                        // break;
+                        break;
                     }
                     shiftYVel(GameSettings.JUMP_VEL);
                     break;

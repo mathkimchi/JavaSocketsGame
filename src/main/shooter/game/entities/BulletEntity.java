@@ -59,6 +59,9 @@ public class BulletEntity extends Entity implements HorDirectionedEntity {
     @Override
     public void handleCollision(final Entity otherEntity) {
         // death should be handled enemy side
+        if (otherEntity instanceof PlatformEntity) {
+            getGame().removeEntity(getId());
+        }
     }
 
     @Override

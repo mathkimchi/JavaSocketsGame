@@ -25,7 +25,7 @@ public class GamePanel extends JPanel {
     private static final long serialVersionUID = -355339008103996038L;
     private static final Logger logger = Logger.getLogger(GamePanel.class.getName());
 
-    private final double[][] gameViewRanges = new double[][] { { -3, 3 }, { -3, 3 } }; // {xRange, yRange}
+    private final double[][] gameViewRanges = new double[][] { { 0, 10 }, { 0, 10 } }; // {xRange, yRange}
     private final ClientGame game;
 
     private BufferedImage rightPlayerSprite, leftPlayerSprite, rightPistolSprite, leftPistolSprite, rightBulletSprite,
@@ -59,7 +59,7 @@ public class GamePanel extends JPanel {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(200, 200);
+        return new Dimension(720, 720);
     }
 
     @Override
