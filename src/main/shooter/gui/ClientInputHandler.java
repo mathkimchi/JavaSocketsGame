@@ -52,6 +52,12 @@ public class ClientInputHandler implements KeyListener {
 
             case KeyEvent.VK_SPACE: {
                 instantActions.add(Action.JUMP);
+                break;
+            }
+
+            case KeyEvent.VK_ENTER: {
+                instantActions.add(Action.SHOOT);
+                break;
             }
 
             default:

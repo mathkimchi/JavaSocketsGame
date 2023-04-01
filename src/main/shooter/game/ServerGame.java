@@ -160,6 +160,9 @@ public class ServerGame {
 
         public static final double WALK_SPEED = 0.0625;
         public static final double JUMP_VEL = 0.5;
+
+        public static final double BULLET_SPEED = 0.125;
+        public static final int BULLET_LIFESPAN = 20;
     }
 
     private static final Logger logger = Logger.getLogger("Server");
@@ -169,7 +172,6 @@ public class ServerGame {
     }
 
     private int smallestAvailableId = 0; // Use a UUID generator?
-
     private final TreeMap<Integer, Entity> entities;
 
     public ServerGame() {
@@ -179,6 +181,7 @@ public class ServerGame {
     }
 
     public TreeMap<Integer, Entity> getEntities() {
+        // recommended to iterate through a copy of this
         return entities;
     }
 
@@ -192,13 +195,17 @@ public class ServerGame {
     }
 
     public void tick() {
-        for (final Entity entity : entities.values()) {
+        /**
+         * to avoid concurrent modification exceptions
+         */
+        final TreeMap<Integer, Entity> entitiesCopy = new TreeMap<>(entities);
+        for (final Entity entity : entitiesCopy.values()) {
             entity.tick();
         }
 
         // collisions
-        for (final Entity entity1 : entities.values()) {
-            for (final Entity entity2 : entities.values()) {
+        for (final Entity entity1 : entitiesCopy.values()) {
+            for (final Entity entity2 : entitiesCopy.values()) {
                 if (entity1.isColliding(entity2)) {
                     entity1.handleCollision(entity2);
                 }

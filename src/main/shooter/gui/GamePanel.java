@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 
 import src.main.shooter.game.ClientGame;
 import src.main.shooter.game.ServerGame.Entity;
+import src.main.shooter.game.entities.BulletEntity;
 import src.main.shooter.game.entities.PistolEntity;
 import src.main.shooter.game.entities.PlatformEntity;
 import src.main.shooter.game.entities.PlayerEntity;
@@ -27,7 +28,8 @@ public class GamePanel extends JPanel {
     private final double[][] gameViewRanges = new double[][] { { -3, 3 }, { -3, 3 } }; // {xRange, yRange}
     private final ClientGame game;
 
-    private BufferedImage rightPlayerSprite, leftPlayerSprite, rightPistolSprite, leftPistolSprite;
+    private BufferedImage rightPlayerSprite, leftPlayerSprite, rightPistolSprite, leftPistolSprite, rightBulletSprite,
+            leftBulletSprite;
 
     public GamePanel(final ClientGame game) {
         this.game = game;
@@ -48,6 +50,8 @@ public class GamePanel extends JPanel {
             leftPlayerSprite = getReflectedImage(rightPlayerSprite);
             rightPistolSprite = ImageIO.read(new File("src/res/Right-Facing-Pistol.png"));
             leftPistolSprite = getReflectedImage(rightPistolSprite);
+            rightBulletSprite = ImageIO.read(new File("src/res/Right-Facing-Bullet.png"));
+            leftBulletSprite = getReflectedImage(rightBulletSprite);
         } catch (final IOException e) {
             e.printStackTrace();
         }
@@ -98,6 +102,15 @@ public class GamePanel extends JPanel {
                 sprite = switch (pistolEntity.getHorDirection()) {
                     case LEFT -> leftPistolSprite;
                     case RIGHT -> rightPistolSprite;
+                    default -> {
+                        logger.severe("Unstandard hor direction.");
+                        yield null;
+                    }
+                };
+            } else if (entity instanceof final BulletEntity bulletEntity) {
+                sprite = switch (bulletEntity.getHorDirection()) {
+                    case LEFT -> leftBulletSprite;
+                    case RIGHT -> rightBulletSprite;
                     default -> {
                         logger.severe("Unstandard hor direction.");
                         yield null;

@@ -67,6 +67,19 @@ public class PlayerEntity extends Entity implements HorDirectionedEntity, Gravit
                     break;
                 }
 
+                case SHOOT: {
+                    if (pistol.getHorDirection() == HorDirection.LEFT) {
+                        new BulletEntity(getGame(), pistol.getLeftX(), pistol.getTopY(), -GameSettings.BULLET_SPEED,
+                                XAxisType.LEFT, YAxisType.TOP);
+                    } else if (pistol.getHorDirection() == HorDirection.RIGHT) {
+                        new BulletEntity(getGame(), pistol.getRightX(), pistol.getTopY(), GameSettings.BULLET_SPEED,
+                                XAxisType.RIGHT, YAxisType.TOP);
+                    } else {
+                        ServerGame.getLogger().warning("Unknown direction \"" + pistol.getHorDirection() + "\".");
+                    }
+                    break;
+                }
+
                 default:
                     ServerGame.getLogger().warning("Unknown action \"" + action + "\" in instant actions.");
                     break;
@@ -123,6 +136,15 @@ public class PlayerEntity extends Entity implements HorDirectionedEntity, Gravit
                 this.setY(otherEntity.getY() + otherEntity.getHeight());
                 this.setYVel(0);
             }
+        } else if (otherEntity instanceof BulletEntity) {
+            die();
         }
     }
+
+    private void die() { // might cause concurrent mod issues
+        getGame().removeEntity(getId());
+    }
 }
+
+// TODO: add tree like structure to entities so that players can officially own
+// guns
