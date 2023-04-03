@@ -8,10 +8,10 @@ import java.util.TreeMap;
 
 import src.main.shooter.game.ClientGame;
 import src.main.shooter.game.ServerGame.Entity;
-import src.main.shooter.gui.MainFrame;
+import src.main.shooter.gui.client.ClientMainFrame;
 import src.main.shooter.net.packets.ActionPacket;
 import src.main.shooter.net.packets.DisconnectPacket;
-import src.main.shooter.net.packets.Packet;
+import src.main.shooter.net.packets.ClientPacket;
 
 public class Client implements Runnable {
     private boolean isRunning;
@@ -19,9 +19,13 @@ public class Client implements Runnable {
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
     private ClientGame game;
-    private MainFrame mainFrame;
+    private final ClientMainFrame mainFrame;
 
-    public Client(final String ipAddress, final int port) {
+    public ClientGame getGame() {
+        return game;
+    }
+
+    public Client(final ClientMainFrame mainFrame, final String ipAddress, final int port) {
         try {
             socket = new Socket(ipAddress, port);
             inputStream = new ObjectInputStream(socket.getInputStream());
@@ -29,6 +33,8 @@ public class Client implements Runnable {
         } catch (final IOException e) {
             e.printStackTrace();
         }
+
+        this.mainFrame = mainFrame;
 
         initialServerCommunication();
     }
@@ -40,8 +46,6 @@ public class Client implements Runnable {
             game = new ClientGame(clientId);
 
             game.processEntityList(((TreeMap<Integer, Entity>) inputStream.readObject()));
-
-            mainFrame = new MainFrame(this, game);
 
             System.out.println("Finished initial server communication.");
         } catch (final IOException e) {
@@ -83,17 +87,13 @@ public class Client implements Runnable {
         }
     }
 
-    public void sendPacket(final Packet packet) {
+    public void sendPacket(final ClientPacket packet) {
         try {
             outputStream.writeObject(packet);
             outputStream.reset();
         } catch (final IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public static void main(final String[] args) {
-        new Client("localhost", Server.portNumber).run();
     }
 
     public void disconnect() {

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import src.main.shooter.game.ServerGame;
 import src.main.shooter.net.packets.ActionPacket;
 import src.main.shooter.net.packets.DisconnectPacket;
-import src.main.shooter.net.packets.Packet;
+import src.main.shooter.net.packets.ClientPacket;
 
 /**
  * Can either make server tell every single client every single entity's
@@ -86,16 +86,16 @@ public class Server implements Runnable {
     private final int TICKS_PER_SECOND = 20;
     private final int MILLISECONDS_PER_TICK = 1000000000 / TICKS_PER_SECOND;
 
-    public final static int portNumber = 1234;
+    public final static int DEFAULT_PORT_NUMBER = 1234;
 
-    private ServerSocket serverSocket;
     private final ServerGame game;
+    private ServerSocket serverSocket;
     private final ArrayList<ClientHandler> clientHandlers;
 
-    public Server(final ServerGame game) {
+    public Server(final ServerGame game, final int port) {
         this.game = game;
         try {
-            this.serverSocket = new ServerSocket(portNumber);
+            this.serverSocket = new ServerSocket(port);
         } catch (final IOException e) {
             e.printStackTrace();
         }
@@ -141,7 +141,7 @@ public class Server implements Runnable {
         }
     }
 
-    public void processPacket(final ClientHandler clientHandler, final Packet packet) {
+    public void processPacket(final ClientHandler clientHandler, final ClientPacket packet) {
         if (packet instanceof final ActionPacket actionPacket) {
             game.updateActionSet(clientHandler.getEntityId(), actionPacket.actionSet);
         } else if (packet instanceof final DisconnectPacket disconnectPacket) {
@@ -163,7 +163,21 @@ public class Server implements Runnable {
         clientHandler.sendUpdate(game.getEntities());
     }
 
+    public void closeServer() {
+        // TODO: save state or something
+
+        try {
+            serverSocket.close();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public ServerSocket getServerSocket() {
+        return serverSocket;
+    }
+
     public static void main(final String[] args) {
-        new Server(new ServerGame()).run();
+        new Server(new ServerGame(), Server.DEFAULT_PORT_NUMBER).run();
     }
 }

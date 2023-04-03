@@ -1,4 +1,4 @@
-package src.main.shooter.gui;
+package src.main.shooter.gui.client;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -21,40 +21,46 @@ import src.main.shooter.game.entities.PistolEntity;
 import src.main.shooter.game.entities.PlatformEntity;
 import src.main.shooter.game.entities.PlayerEntity;
 
-public class GamePanel extends JPanel {
-    private static final long serialVersionUID = -355339008103996038L;
-    private static final Logger logger = Logger.getLogger(GamePanel.class.getName());
+public class ClientGamePanel extends JPanel {
+    private static final Logger logger = Logger.getLogger(ClientGamePanel.class.getName());
 
     private final double[][] gameViewRanges = new double[][] { { 0, 10 }, { 0, 10 } }; // {xRange, yRange}
     private final ClientGame game;
+    private final Sprites sprites = new Sprites();
 
-    private BufferedImage rightPlayerSprite, leftPlayerSprite, rightPistolSprite, leftPistolSprite, rightBulletSprite,
-            leftBulletSprite;
+    private static class Sprites {
+        private final BufferedImage rightPlayerSprite, leftPlayerSprite, rightPistolSprite, leftPistolSprite,
+                rightBulletSprite,
+                leftBulletSprite;
 
-    public GamePanel(final ClientGame game) {
-        this.game = game;
-        initSprites();
-    }
-
-    private BufferedImage getReflectedImage(final BufferedImage originalImage) {
-        // flip right player sprite to get left player sprite
-        final AffineTransform transform = AffineTransform.getScaleInstance(-1, 1);
-        transform.translate(-originalImage.getWidth(), 0);
-        final AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-        return op.filter(originalImage, null);
-    }
-
-    private void initSprites() {
-        try {
-            rightPlayerSprite = ImageIO.read(new File("src/res/Right-Facing-Shooter.png"));
-            leftPlayerSprite = getReflectedImage(rightPlayerSprite);
-            rightPistolSprite = ImageIO.read(new File("src/res/Right-Facing-Pistol.png"));
-            leftPistolSprite = getReflectedImage(rightPistolSprite);
-            rightBulletSprite = ImageIO.read(new File("src/res/Right-Facing-Bullet.png"));
-            leftBulletSprite = getReflectedImage(rightBulletSprite);
-        } catch (final IOException e) {
-            e.printStackTrace();
+        private Sprites() {
+            try {
+                rightPlayerSprite = ImageIO.read(new File("src/res/Right-Facing-Red-Shooter.png"));
+                leftPlayerSprite = getReflectedImage(rightPlayerSprite);
+                rightPistolSprite = ImageIO.read(new File("src/res/Right-Facing-Pistol.png"));
+                leftPistolSprite = getReflectedImage(rightPistolSprite);
+                rightBulletSprite = ImageIO.read(new File("src/res/Right-Facing-Bullet.png"));
+                leftBulletSprite = getReflectedImage(rightBulletSprite);
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
+            }
         }
+
+        private static BufferedImage getReflectedImage(final BufferedImage originalImage) {
+            // flip right player sprite to get left player sprite
+            final AffineTransform transform = AffineTransform.getScaleInstance(-1, 1);
+            transform.translate(-originalImage.getWidth(), 0);
+            final AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+            return op.filter(originalImage, null);
+        }
+    }
+
+    public ClientGamePanel(final ClientGame game) {
+        this.game = game;
+
+        addKeyListener(new ClientInputHandler(game));
+
+        setFocusable(true);
     }
 
     @Override
@@ -91,8 +97,8 @@ public class GamePanel extends JPanel {
 
             if (entity instanceof final PlayerEntity playerEntity) {
                 sprite = switch (playerEntity.getHorDirection()) {
-                    case LEFT -> leftPlayerSprite;
-                    case RIGHT -> rightPlayerSprite;
+                    case LEFT -> sprites.leftPlayerSprite;
+                    case RIGHT -> sprites.rightPlayerSprite;
                     default -> {
                         logger.severe("Unstandard hor direction.");
                         yield null;
@@ -100,8 +106,8 @@ public class GamePanel extends JPanel {
                 };
             } else if (entity instanceof final PistolEntity pistolEntity) {
                 sprite = switch (pistolEntity.getHorDirection()) {
-                    case LEFT -> leftPistolSprite;
-                    case RIGHT -> rightPistolSprite;
+                    case LEFT -> sprites.leftPistolSprite;
+                    case RIGHT -> sprites.rightPistolSprite;
                     default -> {
                         logger.severe("Unstandard hor direction.");
                         yield null;
@@ -109,8 +115,8 @@ public class GamePanel extends JPanel {
                 };
             } else if (entity instanceof final BulletEntity bulletEntity) {
                 sprite = switch (bulletEntity.getHorDirection()) {
-                    case LEFT -> leftBulletSprite;
-                    case RIGHT -> rightBulletSprite;
+                    case LEFT -> sprites.leftBulletSprite;
+                    case RIGHT -> sprites.rightBulletSprite;
                     default -> {
                         logger.severe("Unstandard hor direction.");
                         yield null;

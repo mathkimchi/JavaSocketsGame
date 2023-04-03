@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.util.TreeMap;
 
 import src.main.shooter.game.ServerGame.Entity;
-import src.main.shooter.net.packets.Packet;
+import src.main.shooter.net.packets.ClientPacket;
 
 public class ClientHandler implements Runnable {
     private boolean isRunning;
@@ -55,7 +55,7 @@ public class ClientHandler implements Runnable {
     private void startRecieveMessageLoop() {
         while (isRunning) {
             try {
-                final Packet packet = (Packet) inputStream.readObject();
+                final ClientPacket packet = (ClientPacket) inputStream.readObject();
                 server.processPacket(this, packet);
             } catch (final IOException e) {
                 e.printStackTrace();

@@ -4,7 +4,7 @@ import src.main.shooter.game.ClientGame;
 import src.main.shooter.game.ServerGame.Entity;
 import src.main.shooter.game.action.ActionSet;
 
-public class ActionPacket extends Packet {
+public class ActionPacket extends ClientPacket {
     private static final long serialVersionUID = -710902470934092114L;
     public final ActionSet actionSet;
 
