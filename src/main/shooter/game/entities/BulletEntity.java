@@ -6,15 +6,19 @@ import src.main.shooter.game.ServerGame.Entity;
 public class BulletEntity extends Entity implements HorDirectionedEntity {
     private static final long serialVersionUID = 2690256651740709424L;
 
+    private final PlayerEntity shooter;
     private int age = 0;
     private final double horVel;
 
-    public BulletEntity(final ServerGame game, final double x, final double y, final double horVel,
+    public BulletEntity(final ServerGame game, final PlayerEntity shooter, final double x, final double y,
+            final double horVel,
             final XAxisType xAxisType, final YAxisType yAxisType) {
         /*
          * TODO: add a rectangle class, this is becoming a problem
          */
         super(game, 2. / 8., 1. / 8., x, y);
+
+        this.shooter = shooter;
 
         switch (xAxisType) {
             case LEFT:
@@ -67,6 +71,10 @@ public class BulletEntity extends Entity implements HorDirectionedEntity {
     @Override
     public HorDirection getHorDirection() {
         return horVel > 0 ? HorDirection.RIGHT : HorDirection.LEFT;
+    }
+
+    public PlayerEntity getShooter() {
+        return shooter;
     }
 
     @Override

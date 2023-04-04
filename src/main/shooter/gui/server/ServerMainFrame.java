@@ -6,6 +6,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
 
 import src.main.shooter.game.ServerGame;
+import src.main.shooter.game.ServerTeamGame;
 import src.main.shooter.net.Server;
 
 public class ServerMainFrame extends JFrame {
@@ -22,6 +23,7 @@ public class ServerMainFrame extends JFrame {
                 if (server != null) {
                     server.closeServer();
                 }
+                System.exit(0);
             }
         });
 
@@ -29,12 +31,16 @@ public class ServerMainFrame extends JFrame {
         setVisible(true);
     }
 
-    public void startServer(final int port) {
+    public void startServer(final int port, final String gameType) {
         getContentPane().removeAll();
 
         System.out.println("Starting server.");
 
-        server = new Server(new ServerGame(), port);
+        server = new Server(switch (gameType) {
+            case ("F4A") -> new ServerGame();
+            case ("Red vs Blue") -> new ServerTeamGame();
+            default -> throw new IllegalArgumentException("Unexpected value: " + gameType);
+        }, port);
 
         add(new ServerRunningPanel(server));
 

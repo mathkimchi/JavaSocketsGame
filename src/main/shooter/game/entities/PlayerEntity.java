@@ -69,10 +69,12 @@ public class PlayerEntity extends Entity implements HorDirectionedEntity, Gravit
 
                 case SHOOT: {
                     if (pistol.getHorDirection() == HorDirection.LEFT) {
-                        new BulletEntity(getGame(), pistol.getLeftX(), pistol.getTopY(), -GameSettings.BULLET_SPEED,
+                        new BulletEntity(getGame(), this, pistol.getLeftX(), pistol.getTopY(),
+                                -GameSettings.BULLET_SPEED,
                                 XAxisType.LEFT, YAxisType.TOP);
                     } else if (pistol.getHorDirection() == HorDirection.RIGHT) {
-                        new BulletEntity(getGame(), pistol.getRightX(), pistol.getTopY(), GameSettings.BULLET_SPEED,
+                        new BulletEntity(getGame(), this, pistol.getRightX(), pistol.getTopY(),
+                                GameSettings.BULLET_SPEED,
                                 XAxisType.RIGHT, YAxisType.TOP);
                     } else {
                         ServerGame.getLogger().warning("Unknown direction \"" + pistol.getHorDirection() + "\".");

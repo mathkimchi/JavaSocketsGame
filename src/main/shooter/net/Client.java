@@ -4,14 +4,15 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.TreeMap;
 
 import src.main.shooter.game.ClientGame;
 import src.main.shooter.game.ServerGame.Entity;
 import src.main.shooter.gui.client.ClientMainFrame;
 import src.main.shooter.net.packets.ActionPacket;
-import src.main.shooter.net.packets.DisconnectPacket;
 import src.main.shooter.net.packets.ClientPacket;
+import src.main.shooter.net.packets.DisconnectPacket;
 
 public class Client implements Runnable {
     private boolean isRunning;
@@ -43,7 +44,7 @@ public class Client implements Runnable {
     private void initialServerCommunication() {
         try {
             final int clientId = inputStream.readInt();
-            game = new ClientGame(clientId);
+            game = new ClientGame(this, clientId);
 
             game.processEntityList(((TreeMap<Integer, Entity>) inputStream.readObject()));
 
@@ -72,6 +73,8 @@ public class Client implements Runnable {
                 // write
                 sendPacket(new ActionPacket(game));
                 game.getActionSet().getInstantActions().clear();
+            } catch (final SocketException e) {
+                break;
             } catch (final IOException e) {
                 e.printStackTrace();
             } catch (final ClassNotFoundException e) {
@@ -113,6 +116,6 @@ public class Client implements Runnable {
             e.printStackTrace();
         }
 
-        System.exit(0); // Mostly to stop the read
+        mainFrame.handleDeath();
     }
 }

@@ -20,6 +20,7 @@ import src.main.shooter.game.entities.BulletEntity;
 import src.main.shooter.game.entities.PistolEntity;
 import src.main.shooter.game.entities.PlatformEntity;
 import src.main.shooter.game.entities.PlayerEntity;
+import src.main.shooter.game.entities.TeamedPlayerEntity;
 
 public class ClientGamePanel extends JPanel {
     private static final Logger logger = Logger.getLogger(ClientGamePanel.class.getName());
@@ -29,7 +30,12 @@ public class ClientGamePanel extends JPanel {
     private final Sprites sprites = new Sprites();
 
     private static class Sprites {
-        private final BufferedImage rightPlayerSprite, leftPlayerSprite, rightPistolSprite, leftPistolSprite,
+        private final BufferedImage rightPlayerSprite,
+                leftPlayerSprite,
+                rightBluePlayerSprite,
+                leftBluePlayerSprite,
+                rightPistolSprite,
+                leftPistolSprite,
                 rightBulletSprite,
                 leftBulletSprite;
 
@@ -37,8 +43,13 @@ public class ClientGamePanel extends JPanel {
             try {
                 rightPlayerSprite = ImageIO.read(new File("src/res/Right-Facing-Red-Shooter.png"));
                 leftPlayerSprite = getReflectedImage(rightPlayerSprite);
+
+                rightBluePlayerSprite = ImageIO.read(new File("src/res/Right-Facing-Blue-Shooter.png"));
+                leftBluePlayerSprite = getReflectedImage(rightBluePlayerSprite);
+
                 rightPistolSprite = ImageIO.read(new File("src/res/Right-Facing-Pistol.png"));
                 leftPistolSprite = getReflectedImage(rightPistolSprite);
+
                 rightBulletSprite = ImageIO.read(new File("src/res/Right-Facing-Bullet.png"));
                 leftBulletSprite = getReflectedImage(rightBulletSprite);
             } catch (final IOException e) {
@@ -93,34 +104,35 @@ public class ClientGamePanel extends JPanel {
                     maxY = Math.max(y1, y2);
             final int width = maxX - minX, height = maxY - minY;
 
-            BufferedImage sprite;
+            final BufferedImage sprite;
 
             if (entity instanceof final PlayerEntity playerEntity) {
-                sprite = switch (playerEntity.getHorDirection()) {
-                    case LEFT -> sprites.leftPlayerSprite;
-                    case RIGHT -> sprites.rightPlayerSprite;
-                    default -> {
-                        logger.severe("Unstandard hor direction.");
-                        yield null;
-                    }
-                };
+                if (playerEntity instanceof final TeamedPlayerEntity teamedPlayerEntity) {
+                    sprite = switch (teamedPlayerEntity.getTeam()) {
+                        case RED -> switch (playerEntity.getHorDirection()) {
+                            case LEFT -> sprites.leftPlayerSprite;
+                            case RIGHT -> sprites.rightPlayerSprite;
+                        };
+                        case BLUE -> switch (playerEntity.getHorDirection()) {
+                            case LEFT -> sprites.leftBluePlayerSprite;
+                            case RIGHT -> sprites.rightBluePlayerSprite;
+                        };
+                    };
+                } else {
+                    sprite = switch (playerEntity.getHorDirection()) {
+                        case LEFT -> sprites.leftPlayerSprite;
+                        case RIGHT -> sprites.rightPlayerSprite;
+                    };
+                }
             } else if (entity instanceof final PistolEntity pistolEntity) {
                 sprite = switch (pistolEntity.getHorDirection()) {
                     case LEFT -> sprites.leftPistolSprite;
                     case RIGHT -> sprites.rightPistolSprite;
-                    default -> {
-                        logger.severe("Unstandard hor direction.");
-                        yield null;
-                    }
                 };
             } else if (entity instanceof final BulletEntity bulletEntity) {
                 sprite = switch (bulletEntity.getHorDirection()) {
                     case LEFT -> sprites.leftBulletSprite;
                     case RIGHT -> sprites.rightBulletSprite;
-                    default -> {
-                        logger.severe("Unstandard hor direction.");
-                        yield null;
-                    }
                 };
             } else if (entity instanceof final PlatformEntity platformEntity) {
                 // TODO: create actual sprite
