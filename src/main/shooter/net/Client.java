@@ -16,9 +16,9 @@ import src.main.shooter.net.packets.DisconnectPacket;
 
 public class Client implements Runnable {
     private boolean isRunning;
-    private Socket socket;
-    private ObjectInputStream inputStream;
-    private ObjectOutputStream outputStream;
+    private final Socket socket;
+    private final ObjectInputStream inputStream;
+    private final ObjectOutputStream outputStream;
     private ClientGame game;
     private final ClientMainFrame mainFrame;
 
@@ -26,14 +26,10 @@ public class Client implements Runnable {
         return game;
     }
 
-    public Client(final ClientMainFrame mainFrame, final String ipAddress, final int port) {
-        try {
-            socket = new Socket(ipAddress, port);
-            inputStream = new ObjectInputStream(socket.getInputStream());
-            outputStream = new ObjectOutputStream(socket.getOutputStream());
-        } catch (final IOException e) {
-            e.printStackTrace();
-        }
+    public Client(final ClientMainFrame mainFrame, final String ipAddress, final int port) throws IOException {
+        socket = new Socket(ipAddress, port);
+        inputStream = new ObjectInputStream(socket.getInputStream());
+        outputStream = new ObjectOutputStream(socket.getOutputStream());
 
         this.mainFrame = mainFrame;
 

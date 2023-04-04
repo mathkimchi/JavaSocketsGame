@@ -3,6 +3,8 @@ package src.main.shooter.gui.client;
 import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.net.ConnectException;
 
 import javax.swing.JFrame;
 
@@ -41,11 +43,19 @@ public class ClientMainFrame extends JFrame {
         repaint();
     }
 
-    public void startGame(final String ipAddress, final int port) {
+    public boolean startGame(final String ipAddress, final int port) {
+        System.out.println("Starting game.");
+        try {
+            client = new Client(this, ipAddress, port);
+        } catch (final ConnectException e) {
+            System.out.println("Connection refused.");
+            return false;
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+
         getContentPane().removeAll();
 
-        System.out.println("Starting game.");
-        client = new Client(this, ipAddress, port);
         final ClientGamePanel gamePanel = new ClientGamePanel(client.getGame());
 
         add(gamePanel, BorderLayout.CENTER);
@@ -57,6 +67,7 @@ public class ClientMainFrame extends JFrame {
         repaint();
 
         client.run();
+        return true;
     }
 
     public void handleDeath() {
